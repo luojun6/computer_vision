@@ -1582,7 +1582,63 @@ So let's take a look at a couple of examples.
 
 So this technology is now in many of the state of art image sensors, which is being used in many of the popular phones.
 
+#### 2.6.6 Nature's Image Sensors
+
 ## 3 Imaging: Binary Images
+
+### 3.1 Overview
+
+#### 3.1.1 What are Binary Images
+
+A binary image can have one of two values (0 or 1).
+
+![binary_images_0](./images/binary_images_0.png)
+
+For instance, you see this image here, you have 1 for object and 0 for background. As you can imagine, there are images that are very easy to process, to store, and to analyze.
+
+But turns out, as simple as they are, they are extremely useful. There's lots of things, especially in structured environments that you can do very efficiently, very robustly, using binary images.
+
+#### 3.1.2 Making Binary Images
+
+You take a Gray-level image, that's just a brightness image: $g(x, y)$.
+
+![binary_images_1](./images/binary_images_1.png)
+
+You simply threashold this gray-level image with some predetermined threshold, either automatically computed or set by the user, and you get what's called a characteristc function. Also called an indicator function $b(x, y)$.
+
+#### 3.1.3 Selecting a Threshold (T)
+
+If you first compute the histogram of this image, you have gray levels from say 0 to 255 on the horizontal axis. If it's an 8-bit image, and for each gray-level, you have the number of pixels in the image that have that gral level, that's the histogram.
+
+![binary_images_2](./images/binary_images_2.png)
+
+The histogram has two modes, one mode corresponding to perhaps the backgournd and the second one corresponding to the objects in the image or the foreground.
+
+Bwtween these two modes, you have a valley, that's where you would pick a threshold. The gray level corresponding to the valley, would be a good threshold to use, and when you use that threshold, you end up with a binary image that look like the left picture. A pretty clean image that's ready for processing now.
+
+#### 3.1.4 Examples of Binary Images
+
+So, as you can imagine, binary images are useful in many different domains, not just circuit boards as shown here but fingerprint analysis.
+
+![binary_images_3](./images/binary_images_3.png)
+
+#### 3.1.5 Capturing a Binary Image
+
+Then you can recognize these 3D objects from these 2D images. Unfortunately, as you can imagine, it's going to be really hard to threshold this image to get a binary image.
+
+You see that some of the objects because they had 3D having shading on them, they have these strong specularities highlights, they have different colors.
+
+So simple thresholding is not going to work on this image. For applicatons where binary images can be really useful, where the lighting can be controlled, it turns out that you can create a setup, an imaging system which almost directly gives you the binary image.
+
+![binary_images_4](./images/binary_images_4.png)
+
+What you do is you use what's called backlighting to get the binary image.
+
+### 3.2 Geometric Properties
+
+Now let's take a look at how we can compute some very simple but very useful properties of binary images.
+
+![binary_images_5](./images/binary_images_5.png)
 
 ## 4 Features: Edges, Boundaries, SIFT, Applications
 
