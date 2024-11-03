@@ -1636,9 +1636,157 @@ What you do is you use what's called backlighting to get the binary image.
 
 ### 3.2 Geometric Properties
 
+#### 3.2.1 Geometric Properties of Binary Images
+
 Now let's take a look at how we can compute some very simple but very useful properties of binary images.
 
+Let's assume that the binary image shown heere is continous. Let's also assume that for our purpose here, there's only one object in the binary image.
+
 ![binary_images_5](./images/binary_images_5.png)
+
+So your **_b(x, y)_** that's your characteristic function, which is 1 on the object and 0 outsdie, x and y are the saptial coordinates.
+
+#### 3.2.2 Area and Position
+
+The simplest property you can compute is the area of the object, and that's the zeroth momnent. You simply take **_b_** intehrate it over the entire image.
+
+![binary_images_6](./images/binary_images_6.png)
+
+Useful property because even the area alone can be used to distingush between a small number of objects.
+
+Now if you wanted a robot, for instance, to go and pick up the object, you need to know its location. And an easy way to define the location is the center of the area, which is the first moment.
+
+![binary_images_7](./images/binary_images_7.png)
+
+How does one compute the first moment? It's **_x_** time **_b_** integrated over the entire image divided by the area, and it's **_y_** times **_b_** integrated over the entire image divided by the area. That gives **_$\bar{x}$_** and **_$\bar{y}$_**, the **_x_** and **_y_** coordinates of the center of the arae.
+
+![binary_images_8](./images/binary_images_8.png)
+
+#### 3.2.3 Orientation
+
+Now the question is, how do we define the orientation of the object? If you want the robot to go and pick it up, you need to know not only where it is, but how it's oriented so you can go in and grasp it.
+
+This is difficult to define. We want to do this in a principled way which is easy to compute and it is something that can be robustly determined irrespective of the position and translation of the object.
+
+So for that, we're going to use the second moment. We're going to define the orientation as the **Axis of Least Minimum Second Movement**.
+
+What does that really mean? There exists an axis around which if you spin this object around, it's going to require maximum effort. And there is another axis around which it's going to require minimum effort, minimum moment.
+
+So the one that gives you minimum second moment is the axis that we're looking for. We want to find this orientation.
+
+![binary_images_9](./images/binary_images_9.png)
+
+THe second moment itself, we're going to define as **_E_** is the distance of each point in the object from some chosen axis that's **_$r^{2}$_** integrated over the entire image. So that is the definition of second moment.
+
+Now, of course, this axis that I'm showing here is essentially an arbitrary axis. So you take every point, and you find the distance of the point from the axis --- that's **_r_**. You square it, integrate that over the entire image, and you have the second moment with respect to this axis. And we want to find the axis for which the second moment is minimum.
+
+So the question is, what equation do you want to use for the straight line on the axis?
+
+![binary_images_10](./images/binary_images_10.png)
+
+We don't like this for our purposes here because **_n_** goes from **_$-\infin$_** to **_$\infin$_**. When we try to minimuize the **Axis of Least Minimum Second Movement** function later, we're going to run into issues in terms of signgularities because of this issue.
+
+So we're going to use a different parameterization of the straight line.
+
+![binary_images_11](./images/binary_images_11.png)
+
+- **_$\theta$_** is the angle between the horizontal axis and the line. And so that can only go from 0 to **_$2\pi$_**.
+
+- **_$\rho$_** is a perpendicular distance, the distance from the line to the origin. **_$\rho$_** has to be finite because, after all, the object lines in the image. And therefore, the axis lies in the image, and so that has to be finite.
+
+Our goal here is to find **_$\rho$_** and **_$\theta$_** that minimize **_e_**, which is the second moment, for any given binary iamge.
+
+#### 3.2.4 Distance Between Point and Line
+
+Let's take a look at **_r_**, this is a math primer. It's just a general concept here. Let's say you're given a line $ax + by + c = 0$. The the distance of a point **_(x, y)_** from the line, **_r_** is:
+
+![binary_images_12](./images/binary_images_12.png)
+
+And so now we can use our straight-line equation, which is $x\sin{\theta} - y\cos{\theta} + \rho = 0$. Plug that in there, the abc corresponding to that in there, and you get this expression.
+
+![binary_images_13](./images/binary_images_13.png)
+
+Now you see that in the denominator, you have $\sin^{2}{\theta} + \cos^{2}{\theta}$ which is 1, then you get the last **_r_** equation where you see that this is nothing but the left-hand side of the straight-line equation itself. So you plug in any **_x_** and **_y_** here, you end up getting the distance **_r_**.
+
+We are going to take this because now we have an expression for **_r_** that's in terms of **$\theta$** and **_$\rho$_**.
+
+#### 3.2.5 Minimizing Second Moment
+
+We're going to plug it back in to this equation, which is for the second moment. Then you get this:
+
+![binary_images_14](./images/binary_images_14.png)
+
+Remember uur goal is to find **_$\rho$_** and **_$\theta$_** for which **_e_** is minimum, so we're going to find the derivative of **_e_** with respect to **_$\rho$_** and seit it eqault to 0.
+
+![binary_images_15](./images/binary_images_15.png)
+
+So it turns oout because we know that **_a_** is not 0, otherwise, the binary image would be 0 everywhere.**_a_** is not 0. Here, remember that **_$\bar{x}$_** and **_$\bar{y}$_** are the center of the area. so this tells us that whatever this axis is, that corresponding to the least second moment, that axis must pass through the center of the object, **_$\bar{x}$_** and **_$\bar{y}$_**.
+
+So what we do is that we simply move the coordinate frame. We change the coordinate frame so that we shift it to lie on the center.
+
+![binary_images_16](./images/binary_images_16.png)
+
+#### 3.2.6 Finally, Minimize E
+
+There are 2 solutions for **_$\theta$_**. Why do you have 2 solutions? Well, it's because one solution maximizes **_e_**, and the other one minimize **_e_**. Of course, we are interested in the minimum.
+
+![binary_images_17](./images/binary_images_17.png)
+
+So these two are actually perpendicular to each other. So this tells you something interesting that the axis of minimum intertia. And we need t find the axis of minimum intertia.
+
+#### 3.2.7 Which One to Use?
+
+We take the second derivative of **_e_** with respec tto theta.
+
+![binary_images_18](./images/binary_images_18.png)
+
+When the second derivative of **_e_** is greater than 0, we know that we have found the minimum. And the **_$\theta$_** for which it is less than 0 is the maximum.
+
+![binary_images_19](./images/binary_images_19.png)
+
+We can find the orientation which corresponds to **_$\theta_{1}$\_**, the axis of minimum second moment.
+
+#### 3.2.8 Roundedness
+
+![binary_images_20](./images/binary_images_20.png)
+
+This also allows us to figure out how rounded an object is.
+
+![binary_images_21](./images/binary_images_21.png)
+
+So let's think about what we have done thus far. We've been able to take a binary image of an object, compute its location, compute its area, its two moments, minimum and maximum second moments.
+
+So the area and the minimum second moment and the maximum second moment are features that you can use because these three features will not change as the object translates and rotates around.
+
+So you can use those to figure out, to distinguish between a set of objects --- very crude, but very effective at times. And then the position and the orientation --- that is the red dot and the axis --- is the information that you would choose, for instance, to program a robot to go and pick up the object.
+
+#### 3.2.9 Discrete Binary Images
+
+The binary images are discrete in our case. We're going to take a discrete image, and then we're going to binarize it, threshold it.
+
+Here's a discrete binary image. Each cell is a pixel, a pixel has either 1 or a 0 in it. Here you use **_i_** and **_j_** as your spatial parameters.
+
+![binary_images_22](./images/binary_images_22.png)
+
+So **$b_{ij}$** is a value at a pixel in the row **_i_** and column **_j_**. Let's assume that the area of the pixel is 1. If the area of a pixel is 1, the total area of the object is just the sume of all pixel values, which is **_A_** right here.
+
+![binary_images_23](./images/binary_images_23.png)
+
+You can now compute the center of the area, which is just **_i_** times **$b_{ij}$** over the entier image, sum divided by the area, and the same with y. So you get **_$\bar{x}$_** and **_$\bar{y}$_**.
+
+And finally, we can compute the second moments very easily. Even if you don't change the coordinate system to the center of the object, you can simply go in there and use the origin itself of the image, and essentially compute these second moments.
+
+![binary_images_24](./images/binary_images_24.png)
+
+![binary_images_25](./images/binary_images_25.png)
+
+So the reason we find a prime **_$a^{'}$_**, **_$b^{'}$_** and **_$c^{'}$_** here, that is, we haven't shifted the coordinate frame to the center --- is you can imagine that an image is captured, and you're doing your a-to-d conversion.
+
+You're reading out the image, for each pixel, you can update all the moments that you are looking at. The area, the center **_$\bar{x}$_**, **_$\bar{y}$_**, and that's the first moment and the second moment.
+
+And these moments can all be upaated as you're reading out to pixels in hardware itself. You don't have to wait to compute the first moment, the location first and then change the coordinate frame.
+
+So by the time the image has been read out, everything that you want to compute in terms of a property from the image has been computed.
 
 ## 4 Features: Edges, Boundaries, SIFT, Applications
 
