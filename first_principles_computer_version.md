@@ -1788,6 +1788,231 @@ And these moments can all be upaated as you're reading out to pixels in hardware
 
 So by the time the image has been read out, everything that you want to compute in terms of a property from the image has been computed.
 
+### 3.3 Segmenting Binary Images
+
+#### 3.3.1 Multiple Objects
+
+When we are talking about geometric properties, we assumed that there was one object in the binary image. But, of course, an image can have multiple objects.
+
+![binary_images_26](./images/binary_images_26.png)
+
+Before we can compute our geometric properties, we want to be able to lable each object as a different object. In other words, we want to segment the binary image.
+
+It's a very straightforward thing to do in one way, but it's not necessarily trivial. There are a couple of nuances we have to keep in mind when we do this.
+
+#### 3.3.2 Connected Component
+
+So this brings us to the notion of a connected componeent. An object is really a connected component. It's a maximum set of connected points,
+
+![binary_images_27](./images/binary_images_27.png)
+
+So bearing that in mind, let's look at our first algorithm for labeling, for segmenting a binary image.
+
+#### 3.3.3 Connected Component Labeling
+
+![binary_images_28](./images/binary_images_28.png)
+
+#### 3.3.4 What do we mean by Neighbors?
+
+There are two definitions possible.
+
+![binary_images_29](./images/binary_images_29.png)
+
+Why neither one is perfect? For this, let's take a look at Jordan's curve theorem.
+
+#### 3.3.5 Connectedness
+
+So Jordan's curve theorem simply says that if you have a curve, a closed curve, that curve must divide the region up into two connected regions.
+
+![binary_images_30](./images/binary_images_30.png)
+
+Here, A and B are separate regions, they are not connected to each other.
+
+Well, it turns out that the 4-connectedness and the 8-connectedness, both ofthem, if you use this definition, they end up violating Jordan's curve theorem.
+
+![binary_images_31](./images/binary_images_31.png)
+
+Assume that this is a binary image given to you. These are 1's and 0's. And we'll assume that all the 0's here are connected to each other through a larger background which is a full of 0's. So these are the only ones in the image.
+
+Now, if you look at 4-connectedness, then you see that none of the 1's are connected to each other, because we are not looking at diagnoals here, so you'll get 4 separate objects O1, O2, O3 and O4. And you get, of course, the background here is conneced to the background here through the rest of the background. But it turns out that the background inside is a separate background because it's not connected to this background. These pixels are diagonal.
+
+What this means is that you have 4 disconnected objects, O1 through O4, and yet, you have two disconnected backgrounds. That doesn't make sense.
+
+If you go to the 8-connected definition, then you see that because it handles it includes diagonal pixels as neighbors. These four 1's are connected into one object, so this taken to be a ring. And although it's taken to be a ring, a closed ring, interestingly, the background inside is connected to the background on the outside. That is not possible. That again violate Jordan's curve theorem.
+
+#### 3.3.6 Solution to Neighborhood Problem
+
+The way we address this is by introducing an asymmetry to the definition of a neighborhood. This is called 6-connectedness.
+
+![binary_images_32](./images/binary_images_32.png)
+
+So now you see that if you come back to our original image.
+
+![binary_images_33](./images/binary_images_33.png)
+
+So what we end up with is two line segments, and the backgrounds are all connected now.
+
+#### 3.3.7 Hexagonal Tesselaation
+
+![binary_images_34](./images/binary_images_34.png)
+
+By skewing this, introducing this asymmetry in the definition of a neighborhood, we're basically trying to make a square grid look like a hexagonal grid.
+
+Unfortuantely for us, image sensors don't capture images on hexagonal grids. The images are square grids. So this tries to make a square gird look like a hexagonal grid. That's what's going on here.
+
+#### 3.3.8 Sequential Labeling Algorithm
+
+Now let's talk about a different algorithm, which is more efficient and more elegant in some ways.
+
+![binary_images_35](./images/binary_images_35.png)
+
+So imagine that you want to label this pixel A, but you are only going to use previously labeled pixels which are B, C, and D. So the reason we will assue that these are the only ones we have. At our disposal is we are going to move in this fashion.
+
+![binary_images_36](./images/binary_images_36.png)
+
+We are going to move horizontally, and when we get to the end, we come back and go to the next row. This is called raster scanning an image.
+
+![binary_images_37](./images/binary_images_37.png)
+
+The question is, can we somehow label all the pixels by just looking at the ones above and to the left of them? Then in that case, a single pass of the image would give you a labeling.
+
+![binary_images_38](./images/binary_images_38.png)
+
+The problem is if you arrive at a point, and you have exactly this last situation that we discussed. However, the label of A --- the label of C is not equal to the label of B, then what do you do?
+
+![binary_images_39](./images/binary_images_39.png)
+
+Well, all you need to do is essentially make note of the point that label of B is equal to the label of C. Make note of that in what's called an equivalence table.
+
+So whenever you see this kind of sort of conflict, you just make note of the point that twos labels are equal to one another, and you create thi equivalence table.
+
+And so once you're done with a single pass of image, you come back, and you take a second pass to resolve the equivalencess and you're gone.
+
+![binary_images_40](./images/binary_images_40.png)
+
+### 3.4 Iterative Modification
+
+#### 3.4.1 Extracting the Skeleton
+
+Now let's talk about ways in which you can iteratively modify a binary image to extract some information from it. For example, let's say you have binary image of a human body, and you want to extract the skeleton of the body.
+
+So what you'd like to do is to take this binary image and pin it down so you come down to its skeleton. The skeleton could be useful in terms of figuring out what the pose of the body is, for instance.
+
+But when you are doing this, you want to make sure that you don't change the overall structure, the integrity of the binary image. You're not introducing new objects or taking away objects.
+
+#### 3.4.2 Euler Number (E)
+
+The Euler number is the number of bodies minus the number of holes.
+
+![binary_images_41](./images/binary_images_41.png)
+
+- Letter B: B(1) - H(2) = -1
+- Letter i: B(2) - H(0) = 2
+- ...
+
+So it turns out that an interesting property is that if you take a binary image, and you divide it up into non-overlapping regions, and you compute the Euler number of each region, then the Euler number of the full image is the sum of the Euler numbers of the non-overlapping regions.
+
+What this says is that if you are going to apply an operation to one region, to each region which does not change the Euler number, then at the end of the day, the Euler number of the complete image remains the same.
+
+So we are particular intereted in these conservative numbers where the Euler number doesn't change.
+
+#### 3.4.3 Euler Diffeerential ($E^{*}$)
+
+Imagine that you have a pixel here and it's six neighbors. We're going to use the hexagonal grid to represent this. If you change the center pixel from a 0 to 1, you'll see that the Euler number goes from a 0 to a 1. So the Euler differential is 1 - 0 = 1.
+
+![binary_images_42](./images/binary_images_42.png)
+
+#### 3.4.4 Neighborhood Sets Based on $E^{*}$
+
+We can now take a look at all possible neighborhoods. And how many neighborhoods are there?
+
+Each pixel has <span style="color:orange">**$2^{6} = 64$**</span> possible neighborhoods.
+
+These neighborhood patterns are classified based on the Euler Differential they generat, assuming the center pixel goes from 0 to 1.
+
+Whatever that Euler differential is, it would be the negative of that when you go from a 1 to a 0. So we'll just look at going from 0 to 1.
+
+![binary_images_43](./images/binary_images_43.png)
+
+![binary_images_44](./images/binary_images_44.png)
+
+![binary_images_45](./images/binary_images_45.png)
+
+So it turns out that there are only four possible neighborhood types:
+
+- **$N_{+1}$**
+- **$N_{0}$**
+- **$N_{-1}$**
+- **$N_{-2}$**
+
+With this in place, this idea of Euler differential, you can imagine that you can now apply local operations to a binary image. And based on the neighborhood of a pixel, you can decide what kind of an operation you want to apply to it.
+
+If you want to be safe, you would use an operation that only is applicable to **$N_{0}$** class of neighborhoods, and then you can do this in parallel to all of the points in the image.
+
+#### 3.4.5 Iterative Neighborhood Operations
+
+In fact, with the output that you get, you can then take that in as an input again and reapply the algorithm to that image, and you get an output. So you can iteratively modify the image.
+
+![binary_images_46](./images/binary_images_46.png)
+
+The one thing that I should mention here is that when you are doing this in parallel, you want to make sure that when you're modifying your pixel, that pixel is not being used as a neighbor for any other pixel.
+
+**<span style="color:orange">Conservative Operations</span> do <span style="color:orange">not</span> change the Euler number of the image.**
+
+So the way you do this is that you take the binary image and divide it up into multiple fields. Often, three fields are enough. Apply parallel processing to all the pixels in a field, and then go to the next field and the next field, and you're done. And then you can iterate on that.
+
+So let's see what we can do with this. We are particularly interested in conservative operators.
+
+#### 3.4.6 Notation for Iterative Modification
+
+![binary_images_47](./images/binary_images_47.png)
+
+There are four possible outputs here. These are binary numbers, so how many ways can you fill thee four slots with `0's` and `1's`. Well, it's 2 to the power of 4, which is 16. And each one of these is an algorithm.
+
+![binary_images_48](./images/binary_images_48.png)
+
+#### 3.4.7 Iterative Modification Algorithms
+
+Here are all the algorithms that you could come up with for iterative modification.
+
+![binary_images_49](./images/binary_images_49.png)
+
+Take a look at these two, for instance. Let's assume that the set we are interested in, the neighborhood set we're interested in, is **$N_{0}$**, which is Euler differential 0, as discussed earlier, meaning we want to be conservative. We don't want to introduce any new objects or take away any objects. Safe operations.
+
+![binary_images_50](./images/binary_images_50.png)
+
+If you look at algorithm number-7, when the column belongs to the set, we need to choose the row-3. Otherwise, you're going to leave it the same,but you're going to change it to a 1($C_{ij}$). What that means is that whenever you can, you're going to change a 0 to a 1, which means you're going to grow the object.
+
+Conversely, here, you have algorithm number-4, you happen to be A(1), then you're going to change it to a 0 right here, which means whenever you can, if a pixel is a 1, whenever it's safe to do so, you're going to make it a 0, which means you're going to pin the object.
+
+So that's groing and thining.
+
+#### 3.4.8 Finding Skeletons
+
+So let's take a look at thinning. Thining without changing the Euler number. That's the **$N_{0}$** set right here in algorithm 4.
+
+Start with a butterfly.
+
+![binary_images_51](./images/binary_images_51.png)
+
+After one iteration, you get that.
+
+![binary_images_52](./images/binary_images_52.png)
+
+Keep iterating...
+
+![binary_images_53](./images/binary_images_53.png)
+
+![binary_images_54](./images/binary_images_54.png)
+
+...
+
+![binary_images_55](./images/binary_images_55.png)
+
+![binary_images_56](./images/binary_images_56.png)
+
+Why is this useful? Imagine that you had an image of a butterfly, and an image of a bat, say, for instace, with its wings. And you want ot know which one i a bat, and which one is a butterfly. It would be easier to extract the skeleton and look at the structure to see which one is which.
+
 ## 4 Features: Edges, Boundaries, SIFT, Applications
 
 ## 5 Reconstruction 1: Shading, Focus, Active Illumination
