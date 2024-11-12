@@ -1,4 +1,4 @@
-# First Principles of Computer Vison
+# First Principles of Computer Vison - Imaging
 
 ## 1 Imaging: Image Formation
 
@@ -2012,11 +2012,3 @@ Keep iterating...
 ![binary_images_56](./images/binary_images_56.png)
 
 Why is this useful? Imagine that you had an image of a butterfly, and an image of a bat, say, for instace, with its wings. And you want ot know which one i a bat, and which one is a butterfly. It would be easier to extract the skeleton and look at the structure to see which one is which.
-
-## 4 Features: Edges, Boundaries, SIFT, Applications
-
-## 5 Reconstruction 1: Shading, Focus, Active Illumination
-
-## 6 Reconstruction 2: Stereo, Optical Flow, SFMoptical folding
-
-## 7 Perception: Segmentation, Tracking, Recognition
